@@ -1,0 +1,11 @@
+flutter_native_splash:
+  color: "#AB87FF"
+  image: assets/onBoarding2.png
+  android: true
+  ios: true
+  web: false
+
+  android_12:
+    color: "#AB87FF"
+    image: assets/onBoarding2.png
+  
