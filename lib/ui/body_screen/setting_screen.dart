@@ -1,3 +1,4 @@
+import 'package:color_match_inventory/base/constants.dart';
 import 'package:color_match_inventory/base/images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -55,12 +56,10 @@ class _SettingScreenState extends State<SettingScreen> {
             onTap: () async {
               switch (index) {
                 case 0:
-                  _launchURL(urlLink: 'https://www.doorward.com/privacy');
+                  _launchURL(urlLink: privacyPolicyUrl);
                   break;
                 case 1:
-                  _launchURL(
-                      urlLink:
-                          'https://play.google.com/store/apps/details?id=com.digitalpomegranate.doorward.Doorward&hl=en');
+                  _launchURL(urlLink: userAgreementUrl);
                   break;
                 case 2:
                   if (await inAppReview.isAvailable()) {

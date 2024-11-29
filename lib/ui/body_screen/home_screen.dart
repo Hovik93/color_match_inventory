@@ -132,104 +132,106 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget appBar({TextTheme? theme}) {
-    return Padding(
-      padding: EdgeInsets.only(top: deviceTopPadding + 10, left: 20, right: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          if (!_isSearching)
-            Text(
-              'Home',
-              style: theme?.titleLarge,
-            ),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (_isSearching)
-                  Expanded(
-                    child: SizedBox(
-                      height: 40.0,
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: _onSearchChanged,
-                        decoration: InputDecoration(
-                          hintText: 'Search',
-                          hintStyle: TextStyle(color: AppColors.grayLight),
-                          filled: true,
-                          fillColor: Colors.white.withOpacity(0.1),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 15),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: AppColors.primary,
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 20, right: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            if (!_isSearching)
+              Text(
+                'Home',
+                style: theme?.titleLarge,
+              ),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (_isSearching)
+                    Expanded(
+                      child: SizedBox(
+                        height: 40.0,
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: _onSearchChanged,
+                          decoration: InputDecoration(
+                            hintText: 'Search',
+                            hintStyle: TextStyle(color: AppColors.grayLight),
+                            filled: true,
+                            fillColor: Colors.white.withOpacity(0.1),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: AppColors.primary,
+                              ),
                             ),
                           ),
+                          style: TextStyle(color: AppColors.black),
+                          autofocus: true,
                         ),
-                        style: TextStyle(color: AppColors.black),
-                        autofocus: true,
                       ),
                     ),
-                  ),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (_isSearching) {
-                        _isSearching = false;
-                      } else {
-                        _isSearching = true;
-                      }
-                    });
-                  },
-                  child: _isSearching
-                      ? Icon(
-                          Icons.close,
-                          size: 25.w,
-                          color: AppColors.black,
-                        )
-                      : Container(
-                          width: 44.w,
-                          height: 44.w,
-                          decoration: BoxDecoration(
-                            color: AppColors.gray,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.search,
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (_isSearching) {
+                          _isSearching = false;
+                        } else {
+                          _isSearching = true;
+                        }
+                      });
+                    },
+                    child: _isSearching
+                        ? Icon(
+                            Icons.close,
                             size: 25.w,
-                            color: AppColors.orange,
+                            color: AppColors.black,
+                          )
+                        : Container(
+                            width: 44.w,
+                            height: 44.w,
+                            decoration: BoxDecoration(
+                              color: AppColors.gray,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.search,
+                              size: 25.w,
+                              color: AppColors.orange,
+                            ),
                           ),
-                        ),
-                ),
-                const SizedBox(
-                  width: 15,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) {
-                      return FilterHome(
-                        title: 'Home',
-                      );
-                    }));
-                  },
-                  child: Container(
-                    width: 44.w,
-                    height: 44.w,
-                    decoration: BoxDecoration(
-                      color: AppColors.gray,
-                      shape: BoxShape.circle,
-                    ),
-                    padding: const EdgeInsets.all(12),
-                    child: Image.asset(
-                      AppImages.filter,
-                    ),
                   ),
-                )
-              ],
-            ),
-          )
-        ],
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        return FilterHome(
+                          title: 'Home',
+                        );
+                      }));
+                    },
+                    child: Container(
+                      width: 44.w,
+                      height: 44.w,
+                      decoration: BoxDecoration(
+                        color: AppColors.gray,
+                        shape: BoxShape.circle,
+                      ),
+                      padding: const EdgeInsets.all(12),
+                      child: Image.asset(
+                        AppImages.filter,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -254,17 +256,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: 'Home',
                       );
                     })).then((value) async {
+                      // Проверяем, возвращается ли value
                       if (value != null) {
-                        categories.add(value);
-                        if (loadedCategories.length == 2) {
-                          categories = categories.reversed.toList();
-                          await CategoryStorage.overwriteCategories(categories);
-                        }
-                        addCategory(value);
+                        filteredCategories.add(value);
+                        print("Список после добавления: $filteredCategories");
 
+                        // Реверсирование при длине 2
+                        if (filteredCategories.length == 2) {
+                          filteredCategories =
+                              filteredCategories.reversed.toList();
+                          print("Список после реверса: $filteredCategories");
+                        }
+
+                        // Сохраняем обновленный список
+                        await CategoryStorage.overwriteCategories(
+                            filteredCategories);
+
+                        // Перезагружаем категории
                         filteredCategories =
                             await CategoryStorage.loadCategories();
+                        print("Список после загрузки: $filteredCategories");
 
+                        // Обновляем состояние
                         setState(() {});
                       }
                     });

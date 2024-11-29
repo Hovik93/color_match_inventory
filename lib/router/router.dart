@@ -1,7 +1,6 @@
 import 'package:color_match_inventory/ui/home.dart';
 import 'package:color_match_inventory/ui/onboarding_screen.dart';
 
-
 final routes = {
   '/onBoarding': (context) => const OnBoardingScreen(),
   '/home': (context) => HomePage(),

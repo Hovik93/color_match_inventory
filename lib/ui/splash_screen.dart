@@ -1,4 +1,5 @@
 import 'package:color_match_inventory/base/colors.dart';
+import 'package:color_match_inventory/ui/widget/category_storage.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -14,10 +15,21 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     // Simulate a time-consuming task (e.g., loading data) for the splash screen.
     // Replace this with your actual data loading logic.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      bool showOnboarding = await CategoryStorage.isOnboardingSeen();
+      if (!showOnboarding) {
+        Navigator.pushReplacementNamed(context, '/onBoarding');
+      } else {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    });
+
     Future.delayed(
       const Duration(seconds: 2),
       () {
-        Navigator.pushReplacementNamed(context, '/onBoarding');
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/onBoarding');
+        }
       },
     );
   }

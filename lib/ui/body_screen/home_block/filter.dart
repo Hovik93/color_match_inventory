@@ -57,7 +57,7 @@ class _FilterHomeState extends State<FilterHome> {
       loadedCategories.removeWhere((item) => item['title'] == "Add a category");
 
       if (mounted) {
-        setState(() {}); 
+        setState(() {});
       }
     });
   }
@@ -88,7 +88,7 @@ class _FilterHomeState extends State<FilterHome> {
           child: Column(
             children: [
               Container(
-                height: 140.h,
+                height: 150.w,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: colorBlock(theme: theme),
               ),

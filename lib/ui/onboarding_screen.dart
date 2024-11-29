@@ -1,5 +1,6 @@
 import 'package:color_match_inventory/base/colors.dart';
 import 'package:color_match_inventory/base/images.dart';
+import 'package:color_match_inventory/ui/widget/category_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -70,7 +71,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         // color: Colors.green,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Text(
                               onBoardingImages[index]['text'],
@@ -79,14 +80,22 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                             ),
                             index == onBoardingImages.last['index']
                                 ? GestureDetector(
-                                    onTap: () {
+                                    onTap: () async {
+                                      bool showOnboarding =
+                                          await CategoryStorage
+                                              .isOnboardingSeen();
+                                      if (!showOnboarding) {
+                                        // Показать онбординг
+                                        await CategoryStorage
+                                            .setOnboardingSeen();
+                                      }
                                       Navigator.pushReplacementNamed(
                                           context, '/home');
                                     },
                                     child: Container(
                                       height: 44.w,
-                                      margin: EdgeInsets.symmetric(
-                                        vertical: 20.w,
+                                      margin: EdgeInsets.only(
+                                        top: 20.w,
                                       ),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
@@ -102,35 +111,40 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                     ),
                                   )
                                 : SizedBox(
-                                    height: 84.w,
+                                    height: 20.w,
                                   ),
 
                             /// dotes
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ...List.generate(
-                                  onBoardingImages.length,
-                                  (indexDote) => Container(
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 5),
-                                    width: 8.w,
-                                    height: 8.w,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: index == indexDote
-                                          ? AppColors.primary
-                                          : AppColors.primaryLight,
+                            Padding(
+                              padding: index == onBoardingImages.last['index']
+                                  ? EdgeInsets.only(bottom: 10.w)
+                                  : EdgeInsets.zero,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ...List.generate(
+                                    onBoardingImages.length,
+                                    (indexDote) => Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 5),
+                                      width: 8.w,
+                                      height: 8.w,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: index == indexDote
+                                            ? AppColors.primary
+                                            : AppColors.primaryLight,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
 
                             ///
-                            SizedBox(
-                              height: 20.h,
-                            )
+                            // SizedBox(
+                            //   height: 20.w,
+                            // )
                           ],
                         ),
                       ),
