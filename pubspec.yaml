@@ -50,6 +50,16 @@ dependencies:
 
   image_picker: ^1.1.2
   
+  flutter_launcher_icons: ^0.14.1
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/logo.png"
+  min_sdk_android: 24 # android min sdk min:16, default 21
+  adaptive_icon_background: "#ffffff" # You can use a color or image for the background
+  adaptive_icon_foreground: "assets/logo.png" # For adaptive icons on Android
 
 flutter_native_splash:
   android: true
