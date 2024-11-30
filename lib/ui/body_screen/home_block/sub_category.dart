@@ -8,6 +8,7 @@ import 'package:color_match_inventory/base/images.dart';
 import 'package:color_match_inventory/ui/widget/bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:path_provider/path_provider.dart';
 
 // ignore: must_be_immutable
 class SubCategoryPage extends StatefulWidget {
@@ -66,6 +67,29 @@ class _SubCategoryPageState extends State<SubCategoryPage> {
   void initState() {
     filteredData = widget.subCategories?['subItems'];
     super.initState();
+  }
+
+  Future<String> getFullPath(String relativePath) async {
+    if (relativePath.isEmpty) {
+      return ''; // Возвращаем пустую строку, если путь отсутствует
+    }
+    final directory = await getApplicationDocumentsDirectory();
+    return '${directory.path}/$relativePath';
+  }
+
+  Future<File?> loadImage(String? relativePath) async {
+    if (relativePath == null || relativePath.isEmpty) {
+      return null;
+    }
+    final fullPath = await getFullPath(relativePath);
+    final file = File(fullPath);
+
+    if (await file.exists()) {
+      return file;
+    } else {
+      print("Файл не найден: $fullPath");
+      return null;
+    }
   }
 
   @override
@@ -142,7 +166,6 @@ class _SubCategoryPageState extends State<SubCategoryPage> {
           ),
         ],
       ),
-
       bottomNavigationBar: BottomNavigationBarWidget(
         selectedIndex: 0,
       ),
@@ -163,35 +186,35 @@ class _SubCategoryPageState extends State<SubCategoryPage> {
                   child: GridView.builder(
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, 
-                      mainAxisSpacing: 8, 
-                      crossAxisSpacing: 30, 
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 30,
                     ),
                     itemCount: filteredData.length,
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () {},
-                        child: Column(
-                          children: [
-                            filteredData[index]['subImage'] != null &&
-                                    filteredData[index]['subImage'] != ''
-                                ? Expanded(
-                                    child: (filteredData[index]['subImage'] !=
-                                            null)
-                                        ? ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            child: Image.file(
-                                              File(filteredData[index]
-                                                  ['subImage']),
-                                              width: 160.w,
-                                              height: 200.w,
-                                              fit: BoxFit.contain,
-                                            ),
-                                          )
-                                        : const SizedBox.shrink(),
-                                  )
-                                : Expanded(
+                        child: FutureBuilder<String>(
+                          future: getFullPath(filteredData[index]['subImage']),
+                          builder: (context, snapshot) {
+                            // Если путь не загрузился или произошла ошибка
+                            // Проверяем состояние snapshot и данные
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child:
+                                    CircularProgressIndicator(), // Индикатор загрузки
+                              );
+                            }
+
+                            // Если путь пустой или ошибка при загрузке
+                            if (snapshot.data == '' ||
+                                (!snapshot.hasData ||
+                                    snapshot.data == null ||
+                                    snapshot.data!.isEmpty)) {
+                              return Column(
+                                children: [
+                                  Expanded(
                                     child: Container(
                                       width: width,
                                       decoration: BoxDecoration(
@@ -206,14 +229,37 @@ class _SubCategoryPageState extends State<SubCategoryPage> {
                                       ),
                                     ),
                                   ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Text(
-                              '${filteredData[index]['subtitle']}',
-                              style: theme?.titleMedium,
-                            ),
-                          ],
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    '${filteredData[index]['subtitle']}',
+                                    style: theme?.titleMedium,
+                                  ),
+                                ],
+                              );
+                            }
+
+                            // Если путь загружен успешно
+                            return Column(
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.file(
+                                      File(snapshot.data!),
+                                      width: 160.w,
+                                      height: 200.w,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  '${filteredData[index]['subtitle']}',
+                                  style: theme?.titleMedium,
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       );
                     },

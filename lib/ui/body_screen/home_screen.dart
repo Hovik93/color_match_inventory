@@ -259,13 +259,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       // Проверяем, возвращается ли value
                       if (value != null) {
                         filteredCategories.add(value);
-                        print("Список после добавления: $filteredCategories");
 
                         // Реверсирование при длине 2
                         if (filteredCategories.length == 2) {
                           filteredCategories =
                               filteredCategories.reversed.toList();
-                          print("Список после реверса: $filteredCategories");
                         }
 
                         // Сохраняем обновленный список
@@ -275,7 +273,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Перезагружаем категории
                         filteredCategories =
                             await CategoryStorage.loadCategories();
-                        print("Список после загрузки: $filteredCategories");
 
                         // Обновляем состояние
                         setState(() {});

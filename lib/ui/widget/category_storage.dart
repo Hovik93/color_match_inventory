@@ -85,7 +85,6 @@ class CategoryStorage {
       List<Map<String, dynamic>> categories) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String encodedCategories = jsonEncode(categories);
-    print("Сохраняемые категории: $encodedCategories");
     await prefs.setString(_categoriesKey, encodedCategories);
   }
 
@@ -93,14 +92,11 @@ class CategoryStorage {
   static Future<List<Map<String, dynamic>>> loadCategories() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? encodedCategories = prefs.getString(_categoriesKey);
-    print("Загруженные данные (до декодирования): $encodedCategories");
 
     if (encodedCategories != null) {
       // Если данные существуют, декодируем их
       final decodedCategories =
           List<Map<String, dynamic>>.from(jsonDecode(encodedCategories));
-      print(
-          "Загруженные категории (после декодирования): $decodedCategories"); // Лог для проверки
       return decodedCategories;
     } else {
       // Если данных нет, возвращаем пустой список

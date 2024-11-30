@@ -121,6 +121,23 @@ class _NewThingState extends State<NewThing> {
     }
   }
 
+  Future<String> saveImage(File image) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final relativePath = 'subcategory_images/${image.uri.pathSegments.last}';
+    final fullPath = '${directory.path}/$relativePath';
+
+    // Создаём директорию, если её нет
+    final imageDirectory = Directory('${directory.path}/subcategory_images');
+    if (!await imageDirectory.exists()) {
+      await imageDirectory.create(recursive: true);
+    }
+
+    // Копируем файл
+    await image.copy(fullPath);
+
+    return relativePath; // Возвращаем относительный путь
+  }
+
   @override
   Widget build(BuildContext context) {
     final TextTheme theme = Theme.of(context).textTheme;
@@ -268,15 +285,11 @@ class _NewThingState extends State<NewThing> {
                                   // Проверяем, возвращается ли value
                                   if (value != null) {
                                     loadedCategories.add(value);
-                                    print(
-                                        "Список после добавления: $loadedCategories");
 
                                     // Реверсирование при длине 2
                                     if (loadedCategories.length == 2) {
                                       loadedCategories =
                                           loadedCategories.reversed.toList();
-                                      print(
-                                          "Список после реверса: $loadedCategories");
                                     }
 
                                     // Сохраняем обновленный список
@@ -286,8 +299,6 @@ class _NewThingState extends State<NewThing> {
                                     // Перезагружаем категории
                                     loadedCategories =
                                         await CategoryStorage.loadCategories();
-                                    print(
-                                        "Список после загрузки: $loadedCategories");
 
                                     // Обновляем состояние
                                     setState(() {});
@@ -398,27 +409,28 @@ class _NewThingState extends State<NewThing> {
                       categoryTitle, newData);
 
                   if (_image != null) {
-                    // Получаем путь к директории документов
-                    final directory = await getApplicationDocumentsDirectory();
-                    final imagePath =
-                        '${directory.path}/subcategory_images/${_image!.uri.pathSegments.last}';
+                    final relativePath = await saveImage(_image!);
+                    try {
+                      // Получаем директорию документов
+                      final directory =
+                          await getApplicationDocumentsDirectory();
 
-                    // Создаем папку, если она не существует
-                    final imageDirectory =
-                        Directory('${directory.path}/subcategory_images');
-                    if (!await imageDirectory.exists()) {
-                      await imageDirectory.create(recursive: true);
+                      // Создаём папку, если она не существует
+                      final imageDirectory =
+                          Directory('${directory.path}/subcategory_images');
+                      if (!await imageDirectory.exists()) {
+                        await imageDirectory.create(recursive: true);
+                      }
+
+                      // Сохраняем путь к изображению в базе данных или SharedPreferences
+                      await CategoryStorage.addImageToSubcategory(
+                        tmpSelectCategory['title'],
+                        categoryController.text.trim(),
+                        relativePath,
+                      );
+                    } catch (e) {
+                      print("Ошибка при сохранении изображения: $e");
                     }
-
-                    // Копируем файл в постоянную директорию
-                    final newImage = await _image!.copy(imagePath);
-
-                    // Здесь добавляйте код для сохранения пути изображения в базу данных
-                    await CategoryStorage.addImageToSubcategory(
-                      tmpSelectCategory['title'], // Название категории
-                      categoryController.text.trim(), // Название подкатегории
-                      newImage.path, // Новый путь к изображению
-                    );
                   } else {
                     await CategoryStorage.addImageToSubcategory(
                       tmpSelectCategory['title'], // Название категории
@@ -434,8 +446,8 @@ class _NewThingState extends State<NewThing> {
                   categoryController.clear();
                   selectColor = -1;
                   setState(() {});
+                  Navigator.pushReplacementNamed(context, '/home');
                 }
-                Navigator.pushReplacementNamed(context, '/home');
               },
               child: Container(
                 height: 44.w,
